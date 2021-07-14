@@ -1,16 +1,3 @@
-certifi==2021.5.30
-click @ file:///D:/bld/click_1621503870656/work
-colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1602866480661/work
-Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1621629915293/work
 Flask-SQLAlchemy==2.5.1
-greenlet==1.1.0
 gunicorn==20.1.0
-importlib-metadata @ file:///D:/bld/importlib-metadata_1625463875252/work
-itsdangerous @ file:///home/conda/feedstock_root/build_artifacts/itsdangerous_1621360792037/work
-Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1621419064915/work
-MarkupSafe @ file:///D:/bld/markupsafe_1621455845013/work
-SQLAlchemy==1.4.20
-typing-extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1622748266870/work
-Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1621518206714/work
-wincertstore==0.2
-zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1625284368454/work
+Flask==2.0.1
