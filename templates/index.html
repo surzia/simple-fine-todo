@@ -8,52 +8,163 @@
     <title>{{ name }}</title>
 </head>
 <body>
-{#<h2>新建</h2>#}
-{#<form method="post" action="/">#}
-{#    <label>#}
-{#        <input type="text" name="text" placeholder="新增一条Todo">#}
-{#    </label>#}
-{#    <button type="submit" value="update">新增</button>#}
-{#</form>#}
-{#<h2>列表</h2>#}
-{#{% for todo in todos %}#}
-{#    <form method="POST" action="/edit/{{ todo.id }}">#}
-{#        <input type="hidden" name="done" value="off">#}
-{#        <label>#}
-{#            <input type="checkbox" onclick="redirect('/edit/{{ todo.id }}')"#}
-{#                   data-target="/edit/{{ todo.id }}">#}
-{#        </label>#}
-{#        <input type="text" title="{{ todo.dateAdded }}" value="{{ todo.text }}" name="text">#}
-{#        <button type="submit" value="update">更新</button>#}
-{#    </form>#}
-{#{% endfor %}#}
-<section class="container">
-    <div class="heading">
-        <img class="heading__img" src="static/img/laptop.png" alt="logo">
-        <h1 class="heading__title">To-Do List</h1>
-    </div>
-    <form class="form" method="post" action="/">
-        <div>
-            <label class="form__label" for="todo">~ Today I need to ~</label>
-            <input class="form__input"
-                   type="text"
-                   id="todo"
-                   name="to-do"
-                   size="30"
-                   required>
-            <button class="button" type="submit"><span>Submit</span></button>
-        </div>
-    </form>
-    <div>
-        <ul class="toDoList">
-            {% for todo in todos %}
-                <li id="{{ todo.id }}">{{ todo.text }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</section>
-</body>
-<script>
+<div class="container">
+    <p>
+        <label for="new-task">Add Item</label><input id="new-task" type="text">
+        <button>Add</button>
+    </p>
 
+    <h3>Todo</h3>
+    <ul id="incomplete-tasks">
+        {% for todo in todos %}
+            {% if not todo.done %}
+                <li id="li-{{ todo.id }}">
+                    <input type="checkbox" onchange="taskChanged(this)" name="{{ todo.id }}"
+                           value="uncompleted"><label id="label-{{ todo.id }}">{{ todo.text }}</label>
+                    <input type="text" id="edit-{{ todo.id }}">
+                    <button class="edit" onclick="editTask(this)" name="{{ todo.id }}">Edit</button>
+                    <button class="delete" name="{{ todo.id }}" onclick="deleteTask(this)">Delete</button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h3>Completed</h3>
+    <ul id="completed-tasks">
+        {% for todo in todos %}
+            {% if todo.done %}
+                <li id="li-{{ todo.id }}">
+                    <input type="checkbox" onchange="taskChanged(this)" name="{{ todo.id }}"
+                           value="completed" checked="checked"><label>{{ todo.text }}</label>
+                    <input type="text">
+                    <button class="delete" name="{{ todo.id }}" onclick="deleteTask(this)">Delete</button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+<script type="text/javascript">
+    let taskInput = document.getElementById("new-task");
+    let addButton = document.getElementsByTagName("button")[0];
+
+    // Add a new task
+    let addTask = function () {
+        let postForm = document.createElement("form")
+        postForm.method = "post"
+        postForm.action = "/"
+
+        let inputText = document.createElement("input")
+        inputText.setAttribute("name", "text")
+        inputText.setAttribute("value", taskInput.value)
+
+        postForm.appendChild(inputText)
+        document.body.appendChild(postForm)
+        postForm.submit()
+        document.body.removeChild(postForm)
+
+        taskInput.value = "";
+    }
+
+    // Edit an existing task
+    let editTask = function (obj) {
+        let listItem = document.getElementById("li-" + $(obj).attr("name"))
+
+        let editInput = document.getElementById("edit-" + $(obj).attr("name"))
+        let label = document.getElementById("label-" + $(obj).attr("name"))
+
+        let containsClass = listItem.classList.contains("editMode");
+        console.log("edit-" + $(obj).attr("name"))
+        console.log("label-" + $(obj).attr("name"))
+        //if the class of the parent is .editMode
+        if (containsClass) {
+            //switch from .editMode
+            //Make label text become the input's value
+            label.innerText = editInput.value;
+            let postForm = document.createElement("form")
+            postForm.method = "post"
+            postForm.action = "/edit/" + $(obj).attr("name")
+            let inputText = document.createElement("input")
+            inputText.setAttribute("name", "done")
+            inputText.setAttribute("value", "on")
+            inputText.setAttribute("name", "text")
+            inputText.setAttribute("value", editInput.value)
+            postForm.appendChild(inputText)
+            document.body.appendChild(postForm)
+            postForm.submit()
+            document.body.removeChild(postForm)
+        } else {
+            //Switch to .editMode
+            //input value becomes the label's text
+            editInput.value = label.innerText;
+        }
+
+        // Toggle .editMode on the parent
+        listItem.classList.toggle("editMode");
+
+    }
+
+    // Delete an existing task
+    let deleteTask = function (obj) {
+        let postForm = document.createElement("form")
+        postForm.method = "get"
+        postForm.action = "/edit/" + $(obj).attr("name")
+
+        document.body.appendChild(postForm)
+        postForm.submit()
+        document.body.removeChild(postForm)
+    }
+
+    // Change a task status
+    let taskChanged = function (obj) {
+        let postForm = document.createElement("form")
+        postForm.method = "post"
+        postForm.action = "/edit/" + $(obj).attr("name")
+        let inputText = document.createElement("input")
+
+        if ($(obj).attr("value") === "uncompleted") {
+            inputText.setAttribute("name", "done")
+            inputText.setAttribute("value", "on")
+        } else {
+            inputText.setAttribute("name", "done")
+            inputText.setAttribute("value", "off")
+        }
+
+        postForm.appendChild(inputText)
+        document.body.appendChild(postForm)
+        postForm.submit()
+        document.body.removeChild(postForm)
+    }
+
+    {#let bindTaskEvents = function (taskListItem, checkBoxEventHandler) {#}
+    {#    console.log("Bind list item events");#}
+    {#    //select taskListItem's children#}
+    {#    let checkBox = taskListItem.querySelector("input[type=checkbox]");#}
+    {#    let editButton = taskListItem.querySelector("button.edit");#}
+    {##}
+    {#    //bind editTask to edit button#}
+    {#    editButton.onclick = editTask;#}
+    {##}
+    {#    //bind deleteTask to delete button#}
+    {#deleteButton.onclick = deleteTask(this);#}
+    {##}
+    {#    //bind checkBoxEventHandler to checkbox#}
+    {#    checkBox.onchange = checkBoxEventHandler;#}
+    {##}
+
+    // Set the click handler to the addTask function
+    addButton.addEventListener("click", addTask);
+
+    // Cycle over the incompleteTaskHolder ul list items
+    //for (let i = 0; i < incompleteTasksHolder.children.length; i++) {
+    // bind events to list item's children (taskCompleted)
+    //  bindTaskEvents(incompleteTasksHolder.children[i], taskCompleted);
+    //}
+    // Cycle over the completeTaskHolder ul list items
+    //for (let i = 0; i < completedTasksHolder.children.length; i++) {
+    // bind events to list item's children (taskUncompleted)
+    //  bindTaskEvents(completedTasksHolder.children[i], taskIncomplete);
+    //}
 </script>
 </html>

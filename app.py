@@ -30,10 +30,15 @@ def read_todos():
 
 
 def update_todo(todo_id, text, done):
-    db.session.query(Todo).filter_by(id=todo_id).update({
-        "text": text,
-        "done": True if done == "on" else False
-    })
+    if text is None:
+        db.session.query(Todo).filter_by(id=todo_id).update({
+            "done": True if done == "on" else False
+        })
+    else:
+        db.session.query(Todo).filter_by(id=todo_id).update({
+            "text": text,
+            "done": True if done == "on" else False
+        })
     db.session.commit()
 
 
@@ -52,7 +57,12 @@ def index():
 @app.route("/edit/<todo_id>", methods=["POST", "GET"])
 def edit_todo(todo_id):
     if request.method == "POST":
-        update_todo(todo_id, text=request.form['text'], done=request.form['done'])
+        if 'text' in request.form.to_dict().keys():
+            update_todo(todo_id, text=request.form['text'], done='off')
+        elif 'done' in request.form.to_dict().keys():
+            update_todo(todo_id, text=None, done=request.form['done'])
+        else:
+            update_todo(todo_id, text=None, done='on')
     elif request.method == "GET":
         delete_todo(todo_id)
     return redirect("/", code=302)
