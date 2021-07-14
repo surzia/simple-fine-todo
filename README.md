@@ -1,4 +1,7 @@
 # todo
+![](https://img.shields.io/badge/python-3.6%2B-green)
+![](https://img.shields.io/badge/license-MIT-orange)
+
 This is a simple and fine-look todo application
 ![](./asserts/cover.png)
 
